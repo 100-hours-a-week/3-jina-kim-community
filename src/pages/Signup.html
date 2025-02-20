@@ -1,1 +1,73 @@
+<!DOCTYPE html>
+<html lang="kr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="../../fonts/Fonts.css" />
+    <link rel="stylesheet" href="Signup.css" />
+    <title>회원가입 페이지</title>
+  </head>
+  <body>
+    <header>아무 말 대잔치</header>
+    <hr class="horizontal-rule" />
+    <main>
+      <div class="signup">
+        <p class="signupHeader">회원가입</p>
+        <div class="signup-container">
+          <form>
+            <div class="form-group">
+              <label for="profileImg">프로필 사진</label>
+              <div class="helper-text">* helper text</div>
+              <div class="profileImg">+</div>
+            </div>
 
+            <div class="form-group">
+              <label for="email">이메일*</label>
+              <input
+                type="email"
+                id="email"
+                placeholder="이메일을 입력하세요"
+              />
+            </div>
+            <div class="helper-text">* helper text</div>
+            <div class="form-group">
+              <label for="password">비밀번호*</label>
+              <input
+                type="password"
+                id="password"
+                placeholder="비밀번호를 입력하세요"
+              />
+            </div>
+            <div class="helper-text">* helper text</div>
+            <div class="form-group">
+              <label for="password">비밀번호 확인*</label>
+              <input
+                type="password"
+                id="password"
+                placeholder="비밀번호를 한번 더 입력하세요요"
+              />
+            </div>
+            <div class="helper-text">* helper text</div>
+            <div class="form-group">
+              <label for="password">닉네임*</label>
+              <input
+                type="password"
+                id="password"
+                placeholder="닉네임을 입력하세요"
+              />
+            </div>
+            <div class="helper-text">* helper text</div>
+            <button type="submit" class="login-button">회원가입</button>
+            <button
+              type="button"
+              class="signup-button"
+              onclick="window.location.href='src/pages/Signup.html'"
+            >
+              로그인하러 가기
+            </button>
+          </form>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>
