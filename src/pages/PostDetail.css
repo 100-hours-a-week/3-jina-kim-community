@@ -1,0 +1,180 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: rgb(245, 245, 245);
+  font-family: "Pretendard";
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+header {
+  width: 100%;
+  margin: 2.25rem 0rem;
+  font-size: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+main {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  margin: 0 auto;
+  width: 37.5rem;
+  margin-top: 2.5rem;
+}
+
+.horizontal-rule {
+  width: 100%;
+  height: 1px;
+  background-color: black;
+}
+
+.writer {
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.profileImg {
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  background-color: rgba(217, 217, 217, 1);
+}
+
+.postDetailContainer {
+  width: 100%;
+}
+
+.postHeader {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 12px;
+}
+
+.detail {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.date {
+  font-weight: 400;
+  font-size: 14px;
+  margin-left: 14px;
+}
+
+.edit {
+  display: flex;
+  gap: 10px;
+}
+.editButton {
+  font-size: 1rem;
+  font-weight: 400;
+  padding: 3px 10px;
+  background-color: white;
+  border: 2px solid rgb(207, 157, 227);
+  border-radius: 10px;
+}
+
+.line2 {
+  margin-top: 24px;
+  border: 1px solid rgba(0, 0, 0, 0.16);
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+  margin: 0 auto;
+  width: 100%;
+  gap: 24px;
+  padding-bottom: 0px;
+}
+
+.contentImg {
+  width: 544px;
+  height: 306px;
+  background-color: rgba(217, 217, 217, 1);
+}
+
+.contentMent {
+  font-weight: 400;
+  font-size: 15px;
+  line-height: 21.15px;
+}
+
+.contentDetail {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.detailButton {
+  background-color: rgba(217, 217, 217, 1);
+  font-weight: 700;
+  text-align: center;
+  padding: 15px 0px;
+  width: 100px;
+  border-radius: 15px;
+}
+
+.writeComment {
+  margin: 24px 0px;
+  width: 100%;
+  height: 150px;
+  background-color: white;
+  border-radius: 20px;
+  justify-content: center;
+  overflow: hidden;
+}
+.commentPart {
+  width: 100%;
+}
+
+.textPart {
+  padding: 20px;
+  border: none;
+  width: 100%;
+  resize: none;
+  height: 50%;
+  font-size: 15px;
+  font-family: "Pretendard";
+}
+
+.textPart:focus {
+  outline: none;
+}
+
+.write-button {
+  font-family: "Pretendard";
+  font-weight: 500;
+  border-radius: 10px;
+  padding: 7px 0px;
+  margin: 5px;
+  width: 120px;
+  font-size: 15px;
+  color: white;
+  background-color: rgb(196, 172, 225);
+  border: none;
+  float: right;
+}

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="kr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="../../fonts/Fonts.css" />
+    <link rel="stylesheet" href="../components/postDetail/commentList.css" />
+    <link rel="stylesheet" href="PostDetail.css" />
+    <title>게시물 상세 페이지</title>
+  </head>
+  <body>
+    <header>아무 말 대잔치</header>
+    <hr class="horizontal-rule" />
+    <main>
+      <div class="postDetailContainer">
+        <div class="postHeader">
+          <h2>제목 1</h2>
+          <div class="detail">
+            <div class="profile">
+              <p class="profileImg"></p>
+              <p class="writer">더미 작성자 1</p>
+              <p class="date">2021-01-01 00:00:00</p>
+            </div>
+            <div class="edit">
+              <button class="editButton">수정</button>
+              <button class="editButton">삭제</button>
+            </div>
+          </div>
+        </div>
+        <hr class="line2" />
+        <div class="content">
+          <div class="contentImg"></div>
+          <p class="contentMent">
+            내용입니당 첫 번째 게시물 내용은 이러이러하고..네 이러이러하고~
+            네네네 아 어렵군요 프론트엔트어려워요 백도어려워요
+          </p>
+          <div class="contentDetail">
+            <section class="detailButton">123<br />좋아요수</section>
+            <section class="detailButton">123<br />조회수</section>
+            <section class="detailButton">123<br />댓글</section>
+          </div>
+        </div>
+        <hr class="line2" />
+        <div class="commentPart">
+          <div class="writeComment">
+            <textarea
+              class="textPart"
+              placeholder="댓글을 남겨주세요!"
+            ></textarea>
+            <hr class="line2" />
+            <button class="write-button">댓글 등록</button>
+          </div>
+        </div>
+        <div id="commentListContainer"></div>
+      </div>
+    </main>
+    <script>
+      fetch("../components/postDetail/commentList.html")
+        .then((response) => response.text())
+        .then((html) => {
+          const container = document.getElementById("commentListContainer");
+          // 예를 들어, 리스트 5개를 보여주고 싶다면
+          for (let i = 0; i < 5; i++) {
+            container.innerHTML += html;
+          }
+        })
+        .catch((error) => console.error("리스트 불러오기 에러:", error));
+    </script>
+  </body>
+</html>
