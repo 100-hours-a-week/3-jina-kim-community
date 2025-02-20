@@ -11,11 +11,10 @@
     <header>아무 말 대잔치</header>
     <hr class="horizontal-rule" />
     <main>
-      <a href="/src/pages/PostList.html">게시물 작성하러 가기</a>
       <div class="login">
         <p class="loginHeader">로그인</p>
         <div class="login-container">
-          <form>
+          <form onsubmit="return handleLogin(event)">
             <div class="form-group">
               <label for="email">이메일</label>
               <input
@@ -45,5 +44,30 @@
         </div>
       </div>
     </main>
+    <script>
+      function handleLogin(event) {
+        event.preventDefault(); // 새로고침 방지
+
+        // 1) 입력 값 가져오기
+        const email = document.getElementById("email").value.trim();
+        const password = document.getElementById("password").value.trim();
+
+        // 2) 로컬 스토리지에서 users 배열 가져오기
+        const users = JSON.parse(localStorage.getItem("users")) || [];
+
+        // 3) 해당 유저가 있는지 확인
+        const foundUser = users.find(
+          (user) => user.email === email && user.password === password
+        );
+
+        // 4) 로그인 로직
+        if (foundUser) {
+          alert(`${foundUser.nickname}님, 로그인 성공!`);
+          window.location.href = "src/pages/PostList.html";
+        } else {
+          alert("이메일 또는 비밀번호가 틀렸습니다.");
+        }
+      }
+    </script>
   </body>
 </html>

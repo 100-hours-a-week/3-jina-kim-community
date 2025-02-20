@@ -14,7 +14,7 @@
       <div class="signup">
         <p class="signupHeader">회원가입</p>
         <div class="signup-container">
-          <form>
+          <form onsubmit="return handleSignup(event)">
             <div class="form-group">
               <label for="profileImg">프로필 사진</label>
               <div class="helper-text">* helper text</div>
@@ -40,19 +40,19 @@
             </div>
             <div class="helper-text">* helper text</div>
             <div class="form-group">
-              <label for="password">비밀번호 확인*</label>
+              <label for="passwordConfirm">비밀번호 확인*</label>
               <input
                 type="password"
-                id="password"
-                placeholder="비밀번호를 한번 더 입력하세요요"
+                id="passwordConfirm"
+                placeholder="비밀번호를 한번 더 입력하세요"
               />
             </div>
             <div class="helper-text">* helper text</div>
             <div class="form-group">
-              <label for="password">닉네임*</label>
+              <label for="nickname">닉네임*</label>
               <input
-                type="password"
-                id="password"
+                type="text"
+                id="nickname"
                 placeholder="닉네임을 입력하세요"
               />
             </div>
@@ -61,7 +61,7 @@
             <button
               type="button"
               class="signup-button"
-              onclick="window.location.href='src/pages/Signup.html'"
+              onclick="window.location.href='../../index.html'"
             >
               로그인하러 가기
             </button>
@@ -69,5 +69,53 @@
         </div>
       </div>
     </main>
+    <script>
+      function handleSignup(event) {
+        event.preventDefault(); // 폼 제출 시 새로고침 방지
+
+        // 1) 각 input의 값 가져오기
+        const email = document.getElementById("email").value.trim();
+        const password = document.getElementById("password").value.trim();
+        const passwordConfirm = document
+          .getElementById("passwordConfirm")
+          .value.trim();
+        const nickname = document.getElementById("nickname").value.trim();
+
+        // 2) 유효성 검사 (간단 예시)
+        if (!email || !password || !passwordConfirm || !nickname) {
+          alert("모든 필드를 입력해주세요.");
+          return false;
+        }
+        if (password !== passwordConfirm) {
+          alert("비밀번호가 일치하지 않습니다.");
+          return false;
+        }
+
+        // 3) 기존 저장된 users 배열 가져오기 (없으면 빈 배열)
+        let users = JSON.parse(localStorage.getItem("users")) || [];
+
+        // 4) 이미 가입된 이메일인지 확인
+        const isExist = users.some((user) => user.email === email);
+        if (isExist) {
+          alert("이미 가입된 이메일입니다.");
+          return false;
+        }
+
+        // 5) 새 유저 정보 생성 후 users 배열에 추가
+        const newUser = {
+          email: email,
+          password: password,
+          nickname: nickname,
+        };
+        users.push(newUser);
+
+        // 6) 로컬 스토리지에 다시 저장
+        localStorage.setItem("users", JSON.stringify(users));
+
+        // 7) 가입 성공 메시지 및 로그인 페이지로 이동
+        alert("회원가입이 완료되었습니다!");
+        window.location.href = "../../index.html";
+      }
+    </script>
   </body>
 </html>
