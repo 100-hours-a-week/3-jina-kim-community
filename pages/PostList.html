@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="kr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="PostList.css" />
+    <link rel="stylesheet" href="../components//postList/List.css" />
+    <title>게시물 목록 페이지</title>
+  </head>
+  <body>
+    <header>아무 말 대잔치</header>
+    <hr class="horizontal-rule" />
+    <main>
+      <div class="container">
+        <p class="ment">
+          안녕하세요,<br />아무 말 대잔치 <b>게시판</b> 입니다.
+        </p>
+        <button class="write-button">게시글 작성</button>
+        <div id="postListContainer"></div>
+      </div>
+    </main>
+    <script>
+      fetch("../components/postList/List.html")
+        .then((response) => response.text())
+        .then((html) => {
+          const container = document.getElementById("postListContainer");
+          // 예를 들어, 리스트 5개를 보여주고 싶다면
+          for (let i = 0; i < 5; i++) {
+            container.innerHTML += html;
+          }
+          const listItems = container.querySelectorAll(".listContainer");
+          listItems.forEach((item, index) => {
+            item.addEventListener("click", function () {
+              // 필요에 따라 query string을 통해 게시물 id 전달 가능
+              window.location.href = "PostDetail.html";
+            });
+          });
+        })
+        .catch((error) => console.error("리스트 불러오기 에러:", error));
+    </script>
+  </body>
+</html>
