@@ -14,26 +14,23 @@
     <main>
       <div class="postDetailContainer">
         <div class="postHeader">
-          <h2>제목 1</h2>
+          <h2 id="postTitle">제목</h2>
           <div class="detail">
             <div class="profile">
               <p class="profileImg"></p>
-              <p class="writer">더미 작성자 1</p>
-              <p class="date">2021-01-01 00:00:00</p>
+              <p class="writer" id="postWriter">익명</p>
+              <p class="date" id="postDate">날짜</p>
             </div>
             <div class="edit">
-              <button class="editButton">수정</button>
-              <button class="editButton">삭제</button>
+              <button class="editButton" id="editPost">수정</button>
+              <button class="editButton" id="deletePost">삭제</button>
             </div>
           </div>
         </div>
         <hr class="line2" />
         <div class="content">
           <div class="contentImg"></div>
-          <p class="contentMent">
-            내용입니당 첫 번째 게시물 내용은 이러이러하고..네 이러이러하고~
-            네네네 아 어렵군요 프론트엔트어려워요 백도어려워요
-          </p>
+          <p class="contentMent" id="postContent">내용</p>
           <div class="contentDetail">
             <section class="detailButton">123<br />좋아요수</section>
             <section class="detailButton">123<br />조회수</section>
@@ -44,27 +41,174 @@
         <div class="commentPart">
           <div class="writeComment">
             <textarea
+              id="commentInput"
               class="textPart"
               placeholder="댓글을 남겨주세요!"
             ></textarea>
             <hr class="line2" />
-            <button class="write-button">댓글 등록</button>
+            <button class="write-button" id="submitComment">댓글 등록</button>
           </div>
         </div>
         <div id="commentListContainer"></div>
       </div>
     </main>
+
     <script>
-      fetch("../components/postDetail/commentList.html")
-        .then((response) => response.text())
-        .then((html) => {
-          const container = document.getElementById("commentListContainer");
-          // 예를 들어, 리스트 5개를 보여주고 싶다면
-          for (let i = 0; i < 5; i++) {
-            container.innerHTML += html;
+      document.addEventListener("DOMContentLoaded", function () {
+        const urlParams = new URLSearchParams(window.location.search);
+        const postId = urlParams.get("id");
+
+        if (!postId) {
+          document.body.innerHTML = "<p>잘못된 접근입니다.</p>";
+          return;
+        }
+
+        let posts = JSON.parse(localStorage.getItem("posts")) || [];
+        const post = posts.find((p) => p.id == postId);
+
+        if (!post) {
+          document.body.innerHTML = "<p>게시글을 찾을 수 없습니다.</p>";
+          return;
+        }
+
+        // ✅ 게시글 정보 채우기
+        document.getElementById("postTitle").textContent = post.title;
+        document.getElementById("postContent").textContent = post.content;
+        document.getElementById("postDate").textContent = `작성일: ${new Date(
+          post.id
+        ).toLocaleString()}`;
+
+        // ✅ 게시글 삭제 기능
+        document
+          .getElementById("deletePost")
+          .addEventListener("click", function () {
+            if (confirm("게시글을 삭제하시겠습니까?")) {
+              posts = posts.filter((p) => p.id != postId);
+              localStorage.setItem("posts", JSON.stringify(posts));
+              alert("게시글이 삭제되었습니다.");
+              window.location.href = "PostList.html"; // 리스트 페이지로 이동
+            }
+          });
+
+        // ✅ 게시글 수정 기능 (간단한 예제, 실제 수정 폼 필요)
+        document
+          .getElementById("editPost")
+          .addEventListener("click", function () {
+            window.location.href = `WritePost.html?editId=${postId}`;
+          });
+        // ✅ 댓글 불러오기
+        loadComments();
+
+        // ✅ 댓글 등록 기능
+        document
+          .getElementById("submitComment")
+          .addEventListener("click", function () {
+            const commentInput = document.getElementById("commentInput");
+            const commentText = commentInput.value.trim();
+
+            if (!commentText) {
+              alert("댓글을 입력해주세요!");
+              return;
+            }
+
+            const comments =
+              JSON.parse(localStorage.getItem(`comments_${postId}`)) || [];
+            const newComment = {
+              id: new Date().getTime(),
+              writer: "익명",
+              date: new Date().toLocaleString(),
+              content: commentText,
+            };
+
+            comments.push(newComment);
+            localStorage.setItem(
+              `comments_${postId}`,
+              JSON.stringify(comments)
+            );
+
+            commentInput.value = ""; // 입력창 초기화
+            loadComments(); // 댓글 다시 불러오기
+          });
+
+        // ✅ 댓글 불러오기 함수 (fetch 사용)
+        function loadComments() {
+          const commentListContainer = document.getElementById(
+            "commentListContainer"
+          );
+          commentListContainer.innerHTML = "";
+
+          const comments =
+            JSON.parse(localStorage.getItem(`comments_${postId}`)) || [];
+
+          if (comments.length === 0) {
+            commentListContainer.innerHTML = "<p>댓글이 없습니다.</p>";
+            return;
           }
-        })
-        .catch((error) => console.error("리스트 불러오기 에러:", error));
+
+          fetch("../components/postDetail/commentList.html")
+            .then((response) => response.text())
+            .then((html) => {
+              comments.forEach((comment) => {
+                const tempElement = document.createElement("div");
+                tempElement.innerHTML = html;
+
+                // `commentListContainer` 내부 요소 찾기
+                const commentElement = tempElement.querySelector(
+                  ".commentListContainer"
+                );
+
+                // ✅ 값 변경
+                commentElement.querySelector(".writer").textContent =
+                  comment.writer;
+                commentElement.querySelector(".date").textContent =
+                  comment.date;
+                commentElement.querySelector(".commentContent").textContent =
+                  comment.content;
+
+                // ✅ 삭제 버튼 기능 추가
+                commentElement
+                  .querySelector(".editButton:nth-child(2)")
+                  .addEventListener("click", function () {
+                    if (confirm("댓글을 삭제하시겠습니까?")) {
+                      const updatedComments = comments.filter(
+                        (c) => c.id !== comment.id
+                      );
+                      localStorage.setItem(
+                        `comments_${postId}`,
+                        JSON.stringify(updatedComments)
+                      );
+                      loadComments();
+                    }
+                  });
+
+                // ✅ 수정 버튼 기능 추가
+                commentElement
+                  .querySelector(".editButton:nth-child(1)")
+                  .addEventListener("click", function () {
+                    const newContent = prompt(
+                      "새로운 댓글 내용을 입력하세요:",
+                      comment.content
+                    );
+                    if (newContent) {
+                      comments.forEach((c) => {
+                        if (c.id === comment.id) c.content = newContent;
+                      });
+                      localStorage.setItem(
+                        `comments_${postId}`,
+                        JSON.stringify(comments)
+                      );
+                      loadComments();
+                    }
+                  });
+
+                commentListContainer.appendChild(commentElement);
+              });
+            })
+            .catch((error) =>
+              console.error("댓글 리스트 불러오기 에러:", error)
+            );
+        }
+      });
     </script>
   </body>
 </html>

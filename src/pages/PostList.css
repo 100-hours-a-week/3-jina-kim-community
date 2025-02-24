@@ -55,9 +55,13 @@ main {
   padding: 0.625rem;
   font-size: 1rem;
   color: white;
-  background-color: rgb(196, 172, 225);
+  background-color: #aca0eb;
   border: none;
   align-self: flex-end;
+}
+
+.write-button:hover {
+  background-color: #7f6aee;
 }
 
 .ment {

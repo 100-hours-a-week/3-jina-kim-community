@@ -177,4 +177,9 @@ main {
   background-color: rgb(196, 172, 225);
   border: none;
   float: right;
+  cursor: pointer;
+}
+
+#commentListContainer {
+  margin-bottom: 50px;
 }
