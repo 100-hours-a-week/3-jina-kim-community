@@ -4,12 +4,15 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="../../fonts/Fonts.css" />
+    <link rel="stylesheet" href="../components/common/Header.css" />
     <link rel="stylesheet" href="WritePost.css" />
     <title>게시글 작성 페이지</title>
   </head>
   <body>
-    <header>아무 말 대잔치</header>
-    <hr class="horizontal-rule" />
+    <head>
+      <script src="../components/common/Header.js" defer></script>
+      <!-- ✅ Header.js는 따로 불러오기 -->
+    </head>
     <main>
       <div class="writePage">
         <p class="writeHeader">게시글 작성</p>
@@ -52,6 +55,40 @@
         const urlParams = new URLSearchParams(window.location.search);
         const editId = urlParams.get("editId");
 
+        const fileInput = document.createElement("input"); // 파일 업로드 input (hidden)
+        fileInput.type = "file";
+        fileInput.accept = "image/*"; // 이미지 파일만 허용
+        let imageBase64 = ""; // 이미지 Base64 데이터 저장 변수
+
+        const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+
+        if (!currentUser) {
+          alert("로그인이 필요합니다.");
+          window.location.href = "../../index.html"; // 로그인 페이지로 이동
+          return;
+        }
+
+        // ✅ "파일 선택" 버튼 클릭 시 파일 업로드 창 열기
+        document
+          .querySelector(".imgfile")
+          .addEventListener("click", function (e) {
+            e.preventDefault();
+            fileInput.click();
+          });
+
+        // ✅ 파일 선택 시 Base64로 변환하여 저장
+        fileInput.addEventListener("change", function () {
+          const file = fileInput.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = function (event) {
+              imageBase64 = event.target.result; // Base64 데이터 저장
+              document.querySelector(".ment").textContent = file.name; // 선택된 파일명 표시
+            };
+            reader.readAsDataURL(file);
+          }
+        });
+
         if (editId) {
           // ✅ 수정 모드: 기존 게시글 데이터 불러오기
           const posts = JSON.parse(localStorage.getItem("posts")) || [];
@@ -61,7 +98,14 @@
             document.getElementById("editId").value = editId;
             document.getElementById("title").value = post.title;
             document.getElementById("content").value = post.content;
+            imageBase64 = post.image || ""; // 기존 이미지가 있으면 유지
             document.getElementById("submitButton").textContent = "수정하기";
+
+            // ✅ 기존 이미지가 있으면 파일명 표시
+            if (post.image) {
+              document.querySelector(".ment").textContent =
+                "이미지 파일이 선택됨";
+            }
           }
         }
 
@@ -85,7 +129,9 @@
             if (editId) {
               // ✅ 기존 게시글 수정
               posts = posts.map((p) =>
-                p.id == editId ? { ...p, title, content } : p
+                p.id == editId
+                  ? { ...p, title, content, image: imageBase64 }
+                  : p
               );
               alert("게시글이 수정되었습니다.");
               localStorage.setItem("posts", JSON.stringify(posts));
@@ -96,6 +142,9 @@
                 id: new Date().getTime(),
                 title,
                 content,
+                image: imageBase64, // Base64 이미지 추가
+                writer: currentUser.nickname, // ✅ 유저 닉네임 추가
+                profileImg: currentUser.profileImg || "", // ✅ 유저 프로필 이미지 추가 (없으면 빈 값)
               };
               posts.push(newPost);
               localStorage.setItem("posts", JSON.stringify(posts));

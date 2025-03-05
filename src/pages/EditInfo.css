@@ -41,6 +41,7 @@ main {
 }
 
 .profileImg {
+  position: relative;
   width: 150px;
   height: 150px;
   font-size: 60px;
@@ -51,15 +52,36 @@ main {
   justify-content: center;
   align-items: center;
   margin: 0 auto;
-  cursor: pointer;
   background-size: cover;
   background-position: center;
+  cursor: pointer;
+}
+
+.profileImg::after {
+  display: flex;
+  content: "변경";
+  position: absolute;
+  color: white;
+  width: 52px;
+  font-size: 15px;
+  font-weight: 700;
+  text-align: center;
+  height: 27px;
+  border: 1px solid white;
+  justify-content: center;
+  align-items: center;
+  border-radius: 25px;
+  background-color: rgba(0, 0, 0, 0.35);
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
-  margin-top: 0.5rem;
+  margin-top: 1.5rem;
+}
+
+.form-group p {
+  font-size: 14px;
 }
 
 .form-group label {

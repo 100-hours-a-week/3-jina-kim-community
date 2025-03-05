@@ -4,13 +4,16 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="../../fonts/Fonts.css" />
+    <link rel="stylesheet" href="../components/common/Header.css" />
     <link rel="stylesheet" href="PostList.css" />
     <link rel="stylesheet" href="../components//postList/List.css" />
     <title>게시물 목록 페이지</title>
   </head>
   <body>
-    <header>아무 말 대잔치</header>
-    <hr class="horizontal-rule" />
+    <head>
+      <script src="../components/common/Header.js" defer></script>
+      <!-- ✅ Header.js는 따로 불러오기 -->
+    </head>
     <main>
       <div class="container">
         <p class="ment">
@@ -53,6 +56,15 @@
               listItem.querySelector("h2").textContent = post.title;
               listItem.querySelector(".content span:last-child").textContent =
                 new Date(post.id).toLocaleString();
+              listItem.querySelector(".writer").textContent = post.writer;
+
+              // ✅ 프로필 이미지 설정
+              const profileImgElement = listItem.querySelector(".profileImg");
+              if (post.profileImg) {
+                profileImgElement.style.backgroundImage = `url(${post.profileImg})`;
+              } else {
+                profileImgElement.style.backgroundImage = "none"; // 기본 이미지
+              }
 
               // 클릭하면 상세 페이지로 이동
               listItem.addEventListener("click", function () {
