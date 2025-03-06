@@ -4,12 +4,15 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" type="text/css" href="../../fonts/Fonts.css" />
+    <link rel="stylesheet" href="../components/common/Header.css" />
     <link rel="stylesheet" href="Signup.css" />
     <title>회원가입 페이지</title>
   </head>
   <body>
-    <header>아무 말 대잔치</header>
-    <hr class="horizontal-rule" />
+    <head>
+      <script src="../components/common/Header.js" defer></script>
+      <!-- ✅ Header.js는 따로 불러오기 -->
+    </head>
     <main>
       <div class="signup">
         <p class="signupHeader">회원가입</p>
@@ -80,6 +83,8 @@
           .getElementById("passwordConfirm")
           .value.trim();
         const nickname = document.getElementById("nickname").value.trim();
+        const profileImgDiv = document.querySelector(".profileImg");
+        const profileImg = profileImgDiv.dataset.img || ""; // 선택된 이미지가 있으면 저장
 
         // 2) 유효성 검사 (간단 예시)
         if (!email || !password || !passwordConfirm || !nickname) {
@@ -106,6 +111,7 @@
           email: email,
           password: password,
           nickname: nickname,
+          profileImg: profileImg,
         };
         users.push(newUser);
 
@@ -116,6 +122,31 @@
         alert("회원가입이 완료되었습니다!");
         window.location.href = "../../index.html";
       }
+      // ✅ 프로필 이미지 추가 기능
+      document.addEventListener("DOMContentLoaded", function () {
+        const profileImgDiv = document.querySelector(".profileImg");
+
+        profileImgDiv.addEventListener("click", function () {
+          const fileInput = document.createElement("input");
+          fileInput.type = "file";
+          fileInput.accept = "image/*";
+
+          fileInput.addEventListener("change", function (event) {
+            const file = event.target.files[0];
+            if (file) {
+              const reader = new FileReader();
+              reader.onload = function (e) {
+                profileImgDiv.style.backgroundImage = `url(${e.target.result})`;
+                profileImgDiv.textContent = ""; // "+" 제거
+                profileImgDiv.dataset.img = e.target.result; // 데이터 속성에 이미지 저장
+              };
+              reader.readAsDataURL(file);
+            }
+          });
+
+          fileInput.click();
+        });
+      });
     </script>
   </body>
 </html>

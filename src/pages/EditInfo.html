@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="kr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="../../fonts/Fonts.css" />
+    <link rel="stylesheet" href="../components/common/Header.css" />
+    <link rel="stylesheet" href="EditInfo.css" />
+    <title>회원정보수정</title>
+  </head>
+  <body>
+    <head>
+      <script src="../components/common/Header.js" defer></script>
+      <!-- ✅ Header.js는 따로 불러오기 -->
+    </head>
+    <main>
+      <div class="signup">
+        <p class="signupHeader">회원정보수정</p>
+        <div class="signup-container">
+          <form onsubmit="return handleSignup(event)">
+            <div class="form-group">
+              <label for="profileImg">프로필 사진*</label>
+              <div class="profileImg"></div>
+            </div>
+            <div class="form-group">
+              <label for="email">이메일</label>
+              <p>jinatye@naver.com</p>
+            </div>
+            <div class="form-group">
+              <label for="nickname">닉네임</label>
+              <input
+                type="text"
+                id="nickname"
+                placeholder="닉네임을 입력하세요"
+              />
+            </div>
+            <div class="helper-text">* helper text</div>
+            <button type="submit" class="login-button">수정하기</button>
+            <button
+              type="button"
+              class="signup-button"
+              onclick="window.location.href='../../index.html'"
+            >
+              회원탈퇴
+            </button>
+          </form>
+        </div>
+      </div>
+    </main>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const nicknameInput = document.getElementById("nickname");
+        const profileImgDiv = document.querySelector(".profileImg");
+        const emailText = document.querySelector(".form-group p");
+
+        // ✅ 현재 로그인한 사용자 정보 가져오기
+        let users = JSON.parse(localStorage.getItem("users")) || [];
+        let currentUser = JSON.parse(localStorage.getItem("currentUser")); // 로그인된 사용자 정보
+
+        if (!currentUser) {
+          alert("로그인이 필요합니다.");
+          window.location.href = "../../index.html"; // 로그인 페이지로 이동
+          return;
+        }
+
+        // ✅ 현재 사용자 정보 찾기
+        let userIndex = users.findIndex(
+          (user) => user.email === currentUser.email
+        );
+        if (userIndex === -1) {
+          alert("사용자 정보를 찾을 수 없습니다.");
+          window.location.href = "../../index.html";
+          return;
+        }
+
+        let userData = users[userIndex];
+
+        // ✅ 기존 정보 불러오기
+        emailText.textContent = userData.email;
+        nicknameInput.value = userData.nickname;
+        if (userData.profileImg) {
+          profileImgDiv.style.backgroundImage = `url(${userData.profileImg})`;
+          profileImgDiv.textContent = ""; // ✅ 기본적으로 '변경' 표시
+        }
+
+        // ✅ 프로필 사진 변경 기능
+        profileImgDiv.addEventListener("click", function () {
+          const fileInput = document.createElement("input");
+          fileInput.type = "file";
+          fileInput.accept = "image/*";
+
+          fileInput.addEventListener("change", function (event) {
+            const file = event.target.files[0];
+            if (file) {
+              const reader = new FileReader();
+              reader.onload = function (e) {
+                profileImgDiv.style.backgroundImage = `url(${e.target.result})`;
+                profileImgDiv.textContent = ""; // '+' 제거
+                userData.profileImg = e.target.result; // localStorage에 저장할 이미지 데이터
+              };
+              reader.readAsDataURL(file);
+            }
+          });
+
+          fileInput.click();
+        });
+
+        // ✅ 회원정보 수정 기능
+        document
+          .querySelector("form")
+          .addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            const newNickname = nicknameInput.value.trim();
+            if (!newNickname) {
+              alert("닉네임을 입력해주세요!");
+              return;
+            }
+
+            // ✅ 닉네임 변경
+            userData.nickname = newNickname;
+            users[userIndex] = userData;
+            localStorage.setItem("users", JSON.stringify(users));
+            localStorage.setItem("currentUser", JSON.stringify(userData)); // 현재 로그인된 사용자 정보 업데이트
+
+            alert("회원정보가 수정되었습니다!");
+            window.location.href = "../pages/PostList.html";
+          });
+
+        // ✅ 회원 탈퇴 기능
+        document
+          .querySelector(".signup-button")
+          .addEventListener("click", function () {
+            if (confirm("정말 회원 탈퇴하시겠습니까?")) {
+              users.splice(userIndex, 1); // 사용자 정보 삭제
+              localStorage.setItem("users", JSON.stringify(users));
+              localStorage.removeItem("currentUser"); // 로그인 정보 삭제
+              alert("회원 탈퇴가 완료되었습니다.");
+              window.location.href = "../../index.html"; // 메인 페이지로 이동
+            }
+          });
+      });
+    </script>
+  </body>
+</html>

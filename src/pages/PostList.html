@@ -4,40 +4,78 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="../../fonts/Fonts.css" />
+    <link rel="stylesheet" href="../components/common/Header.css" />
     <link rel="stylesheet" href="PostList.css" />
     <link rel="stylesheet" href="../components//postList/List.css" />
     <title>게시물 목록 페이지</title>
   </head>
   <body>
-    <header>아무 말 대잔치</header>
-    <hr class="horizontal-rule" />
+    <head>
+      <script src="../components/common/Header.js" defer></script>
+      <!-- ✅ Header.js는 따로 불러오기 -->
+    </head>
     <main>
       <div class="container">
         <p class="ment">
           안녕하세요,<br />아무 말 대잔치 <b>게시판</b> 입니다.
         </p>
-        <button class="write-button">게시글 작성</button>
+        <button
+          class="write-button"
+          onclick="window.location.href='WritePost.html'"
+        >
+          게시글 작성
+        </button>
         <div id="postListContainer"></div>
       </div>
     </main>
     <script>
-      fetch("../components/postList/List.html")
-        .then((response) => response.text())
-        .then((html) => {
-          const container = document.getElementById("postListContainer");
-          // 예를 들어, 리스트 5개를 보여주고 싶다면
-          for (let i = 0; i < 5; i++) {
-            container.innerHTML += html;
-          }
-          const listItems = container.querySelectorAll(".listContainer");
-          listItems.forEach((item, index) => {
-            item.addEventListener("click", function () {
-              // 필요에 따라 query string을 통해 게시물 id 전달 가능
-              window.location.href = "PostDetail.html";
+      document.addEventListener("DOMContentLoaded", function () {
+        const postListContainer = document.getElementById("postListContainer");
+
+        // 저장된 게시글 가져오기
+        const posts = JSON.parse(localStorage.getItem("posts")) || [];
+
+        // 게시글이 없으면 메시지 출력
+        if (posts.length === 0) {
+          postListContainer.innerHTML = "<p>게시글이 없습니다.</p>";
+          return;
+        }
+
+        // List.html 템플릿 가져오기
+        fetch("../components/postList/List.html")
+          .then((response) => response.text())
+          .then((html) => {
+            posts.forEach((post) => {
+              const tempElement = document.createElement("div");
+              tempElement.innerHTML = html;
+
+              // listContainer 요소 찾기
+              const listItem = tempElement.querySelector(".listContainer");
+
+              // 제목, 날짜 변경
+              listItem.querySelector("h2").textContent = post.title;
+              listItem.querySelector(".content span:last-child").textContent =
+                new Date(post.id).toLocaleString();
+              listItem.querySelector(".writer").textContent = post.writer;
+
+              // ✅ 프로필 이미지 설정
+              const profileImgElement = listItem.querySelector(".profileImg");
+              if (post.profileImg) {
+                profileImgElement.style.backgroundImage = `url(${post.profileImg})`;
+              } else {
+                profileImgElement.style.backgroundImage = "none"; // 기본 이미지
+              }
+
+              // 클릭하면 상세 페이지로 이동
+              listItem.addEventListener("click", function () {
+                window.location.href = `PostDetail.html?id=${post.id}`;
+              });
+
+              postListContainer.appendChild(listItem);
             });
-          });
-        })
-        .catch((error) => console.error("리스트 불러오기 에러:", error));
+          })
+          .catch((error) => console.error("리스트 불러오기 에러:", error));
+      });
     </script>
   </body>
 </html>

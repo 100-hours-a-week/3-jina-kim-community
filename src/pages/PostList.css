@@ -18,15 +18,6 @@ body {
   flex-direction: column;
 }
 
-header {
-  width: 100%;
-  margin: 2.25rem 0rem;
-  font-size: 2rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
 main {
   flex: 1;
   display: flex;
@@ -34,12 +25,6 @@ main {
   margin: 0 auto;
   width: 37.5rem;
   margin-top: 2.5rem;
-}
-
-.horizontal-rule {
-  width: 100%;
-  height: 1px;
-  background-color: black;
 }
 
 .container {
@@ -55,9 +40,13 @@ main {
   padding: 0.625rem;
   font-size: 1rem;
   color: white;
-  background-color: rgb(196, 172, 225);
+  background-color: #aca0eb;
   border: none;
   align-self: flex-end;
+}
+
+.write-button:hover {
+  background-color: #7f6aee;
 }
 
 .ment {

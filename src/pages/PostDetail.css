@@ -18,15 +18,6 @@ body {
   flex-direction: column;
 }
 
-header {
-  width: 100%;
-  margin: 2.25rem 0rem;
-  font-size: 2rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
 main {
   flex: 1;
   display: flex;
@@ -34,12 +25,6 @@ main {
   margin: 0 auto;
   width: 37.5rem;
   margin-top: 2.5rem;
-}
-
-.horizontal-rule {
-  width: 100%;
-  height: 1px;
-  background-color: black;
 }
 
 .writer {
@@ -52,6 +37,8 @@ main {
   width: 36px;
   height: 36px;
   background-color: rgba(217, 217, 217, 1);
+  background-size: cover;
+  background-position: center;
 }
 
 .postDetailContainer {
@@ -177,4 +164,9 @@ main {
   background-color: rgb(196, 172, 225);
   border: none;
   float: right;
+  cursor: pointer;
+}
+
+#commentListContainer {
+  margin-bottom: 50px;
 }
