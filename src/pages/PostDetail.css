@@ -81,6 +81,7 @@ main {
   background-color: white;
   border: 2px solid rgb(207, 157, 227);
   border-radius: 10px;
+  cursor: pointer;
 }
 
 .line2 {

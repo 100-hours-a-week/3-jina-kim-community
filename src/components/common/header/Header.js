@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
-  fetch("../components/common/Header.html") // 헤더 파일 불러오기
+  fetch("../components/common/header/Header.html") // 헤더 파일 불러오기
     .then((response) => response.text())
     .then((data) => {
       document.body.insertAdjacentHTML("afterbegin", data);

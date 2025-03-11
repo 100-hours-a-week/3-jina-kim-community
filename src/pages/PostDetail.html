@@ -4,14 +4,15 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="../../fonts/Fonts.css" />
-    <link rel="stylesheet" href="../components/common/Header.css" />
+    <link rel="stylesheet" href="../components/common/header/Header.css" />
+    <link rel="stylesheet" href="../components/common/modal/modal.css" />
     <link rel="stylesheet" href="../components/postDetail/commentList.css" />
     <link rel="stylesheet" href="PostDetail.css" />
     <title>게시물 상세 페이지</title>
   </head>
   <body>
     <head>
-      <script src="../components/common/Header.js" defer></script>
+      <script src="../components/common/header/Header.js" defer></script>
       <!-- ✅ Header.js는 따로 불러오기 -->
     </head>
     <main>
@@ -20,7 +21,7 @@
           <h2 id="postTitle">제목</h2>
           <div class="detail">
             <div class="profile">
-              <img class="profileImg"></img>
+              <img class="profileImg" />
               <p class="writer" id="postWriter">익명</p>
               <p class="date" id="postDate">날짜</p>
             </div>
@@ -32,7 +33,7 @@
         </div>
         <hr class="line2" />
         <div class="content">
-          <img class="contentImg" id="postImg" alt="게시글 이미지"></img>
+          <img class="contentImg" id="postImg" alt="게시글 이미지" />
           <p class="contentMent" id="postContent">내용</p>
           <div class="contentDetail">
             <section class="detailButton">123<br />좋아요수</section>
@@ -55,11 +56,12 @@
         <div id="commentListContainer"></div>
       </div>
     </main>
-
+    <script src="../components/common/modal/modal.js"></script>
     <script>
       document.addEventListener("DOMContentLoaded", function () {
         const urlParams = new URLSearchParams(window.location.search);
         const postId = urlParams.get("id");
+        const deletePostButton = document.getElementById("deletePost");
 
         if (!postId) {
           document.body.innerHTML = "<p>잘못된 접근입니다.</p>";
@@ -84,37 +86,25 @@
         ).toLocaleString()}`;
 
         // ✅ 작성자 정보 (익명 → 실제 닉네임)
-  document.getElementById("postWriter").textContent = post.writer || "익명";
+        document.getElementById("postWriter").textContent =
+          post.writer || "익명";
 
-  // ✅ 프로필 이미지 설정 (없으면 기본 이미지 사용)
-  const profileImgElement = document.querySelector(".profileImg");
-  if (post.profileImg) {
-    profileImgElement.style.backgroundImage = `url(${post.profileImg})`;
-  } else {
-    profileImgElement.style.backgroundImage = "none"; // 기본 이미지
-  }
-
+        // ✅ 프로필 이미지 설정 (없으면 기본 이미지 사용)
+        const profileImgElement = document.querySelector(".profileImg");
+        if (post.profileImg) {
+          profileImgElement.style.backgroundImage = `url(${post.profileImg})`;
+        } else {
+          profileImgElement.style.backgroundImage = "none"; // 기본 이미지
+        }
 
         // ✅ 이미지 표시 (이미지가 있을 경우에만)
-const postImg = document.getElementById("postImg");
-if (post.image) {
-  postImg.src = post.image; // Base64 이미지 적용
-  postImg.style.display = "block"; // 이미지가 있으면 표시
-} else {
-  postImg.style.display = "none"; // 이미지가 없으면 숨기기
-}
-
-        // ✅ 게시글 삭제 기능
-        document
-          .getElementById("deletePost")
-          .addEventListener("click", function () {
-            if (confirm("게시글을 삭제하시겠습니까?")) {
-              posts = posts.filter((p) => p.id != postId);
-              localStorage.setItem("posts", JSON.stringify(posts));
-              alert("게시글이 삭제되었습니다.");
-              window.location.href = "PostList.html"; // 리스트 페이지로 이동
-            }
-          });
+        const postImg = document.getElementById("postImg");
+        if (post.image) {
+          postImg.src = post.image; // Base64 이미지 적용
+          postImg.style.display = "block"; // 이미지가 있으면 표시
+        } else {
+          postImg.style.display = "none"; // 이미지가 없으면 숨기기
+        }
 
         // ✅ 게시글 수정 기능 (간단한 예제, 실제 수정 폼 필요)
         document
@@ -124,6 +114,32 @@ if (post.image) {
           });
         // ✅ 댓글 불러오기
         loadComments();
+
+        if (deletePostButton) {
+          deletePostButton.addEventListener("click", function () {
+            deleteAction(postId); // ✅ 모달을 띄워서 삭제 확인
+          });
+        }
+
+        // ✅ deleteAction을 실행하면 모달을 띄우고, 확인 버튼을 deletePostConfirmed(postId)로 설정
+        function deleteAction(postId) {
+          openModal(
+            "게시글을 삭제하시겠습니까?",
+            "삭제한 내용은 복구 할 수 없습니다.",
+            function () {
+              deletePostConfirmed(postId);
+            }
+          );
+        }
+
+        // ✅ 게시글 삭제 함수 (모달에서 "확인" 누르면 실행)
+        function deletePostConfirmed(postId) {
+          posts = posts.filter((p) => p.id != postId);
+          localStorage.setItem("posts", JSON.stringify(posts));
+
+          closeModal(); // 모달 닫기
+          window.location.href = "PostList.html"; // 리스트 페이지로 이동
+        }
 
         // ✅ 댓글 등록 기능
         document
@@ -192,29 +208,14 @@ if (post.image) {
                 commentElement.querySelector(".commentContent").textContent =
                   comment.content;
 
-                   // ✅ 프로필 이미지 설정
-          const profileImgElement = commentElement.querySelector(".profileImg");
-          if (comment.profileImg) {
-            profileImgElement.style.backgroundImage = `url(${comment.profileImg})`;
-          } else {
-            profileImgElement.style.backgroundImage = "none"; // 기본 이미지
-          }
-
-                // ✅ 삭제 버튼 기능 추가
-                commentElement
-                  .querySelector(".editButton:nth-child(2)")
-                  .addEventListener("click", function () {
-                    if (confirm("댓글을 삭제하시겠습니까?")) {
-                      const updatedComments = comments.filter(
-                        (c) => c.id !== comment.id
-                      );
-                      localStorage.setItem(
-                        `comments_${postId}`,
-                        JSON.stringify(updatedComments)
-                      );
-                      loadComments();
-                    }
-                  });
+                // ✅ 프로필 이미지 설정
+                const profileImgElement =
+                  commentElement.querySelector(".profileImg");
+                if (comment.profileImg) {
+                  profileImgElement.style.backgroundImage = `url(${comment.profileImg})`;
+                } else {
+                  profileImgElement.style.backgroundImage = "none"; // 기본 이미지
+                }
 
                 // ✅ 수정 버튼 기능 추가
                 commentElement
@@ -236,12 +237,39 @@ if (post.image) {
                     }
                   });
 
+                const deleteButton = commentElement.querySelector(
+                  ".editButton:nth-child(2)"
+                );
+                deleteButton.addEventListener("click", function () {
+                  deleteCommentAction(comment.id);
+                });
+
                 commentListContainer.appendChild(commentElement);
               });
             })
             .catch((error) =>
               console.error("댓글 리스트 불러오기 에러:", error)
             );
+        }
+
+        function deleteCommentAction(commentId) {
+          openModal(
+            "댓글을 삭제하시겠습니까?",
+            "삭제한 내용은 복구 할 수 없습니다.",
+            function () {
+              deleteCommentConfirmed(commentId);
+            }
+          );
+        }
+
+        function deleteCommentConfirmed(commentId) {
+          let comments =
+            JSON.parse(localStorage.getItem(`comments_${postId}`)) || []; // ✅ 댓글 리스트 불러오기
+          comments = comments.filter((c) => c.id != commentId); // ✅ 선택한 댓글만 삭제
+          localStorage.setItem(`comments_${postId}`, JSON.stringify(comments)); // ✅ 변경된 댓글 저장
+
+          closeModal();
+          loadComments();
         }
       });
     </script>

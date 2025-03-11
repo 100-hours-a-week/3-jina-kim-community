@@ -4,13 +4,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" type="text/css" href="../../fonts/Fonts.css" />
-    <link rel="stylesheet" href="../components/common/Header.css" />
+    <link rel="stylesheet" href="../components/common/modal/modal.css" />
+    <link rel="stylesheet" href="../components/common/header/Header.css" />
     <link rel="stylesheet" href="EditInfo.css" />
     <title>회원정보수정</title>
   </head>
   <body>
     <head>
-      <script src="../components/common/Header.js" defer></script>
+      <script src="../components/common/header/Header.js" defer></script>
       <!-- ✅ Header.js는 따로 불러오기 -->
     </head>
     <main>
@@ -36,17 +37,12 @@
             </div>
             <div class="helper-text">* helper text</div>
             <button type="submit" class="login-button">수정하기</button>
-            <button
-              type="button"
-              class="signup-button"
-              onclick="window.location.href='../../index.html'"
-            >
-              회원탈퇴
-            </button>
+            <button type="button" class="quit-button">회원탈퇴</button>
           </form>
         </div>
       </div>
     </main>
+    <script src="../components/common/modal/modal.js"></script>
     <script>
       document.addEventListener("DOMContentLoaded", function () {
         const nicknameInput = document.getElementById("nickname");
@@ -127,18 +123,40 @@
             window.location.href = "../pages/PostList.html";
           });
 
-        // ✅ 회원 탈퇴 기능
+        // ✅ 회원 탈퇴 버튼 클릭 이벤트
         document
-          .querySelector(".signup-button")
+          .querySelector(".quit-button")
           .addEventListener("click", function () {
-            if (confirm("정말 회원 탈퇴하시겠습니까?")) {
-              users.splice(userIndex, 1); // 사용자 정보 삭제
-              localStorage.setItem("users", JSON.stringify(users));
-              localStorage.removeItem("currentUser"); // 로그인 정보 삭제
-              alert("회원 탈퇴가 완료되었습니다.");
-              window.location.href = "../../index.html"; // 메인 페이지로 이동
-            }
+            openModal(
+              "정말 회원 탈퇴하시겠습니까?",
+              "탈퇴 후 계정을 복구할 수 없습니다.",
+              function () {
+                deleteUserAccount(); // 회원 탈퇴 함수 실행
+              }
+            );
           });
+
+        // ✅ 회원 탈퇴 함수 (계정 삭제 처리)
+        function deleteUserAccount() {
+          let userIndex = users.findIndex(
+            (user) => user.email === currentUser.email
+          );
+
+          if (userIndex === -1) {
+            alert("사용자 정보를 찾을 수 없습니다.");
+            return;
+          }
+          // ✅ 배열에서 해당 사용자 삭제
+          users.splice(userIndex, 1);
+          localStorage.setItem("users", JSON.stringify(users));
+
+          // ✅ 로그인 정보 삭제
+          localStorage.removeItem("currentUser");
+
+          closeModal(); // 모달 닫기
+          alert("회원 탈퇴가 완료되었습니다.");
+          window.location.href = "../../index.html"; // 메인 페이지로 이동
+        }
       });
     </script>
   </body>
