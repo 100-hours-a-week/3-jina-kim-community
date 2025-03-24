@@ -124,6 +124,13 @@ main {
   padding: 15px 0px;
   width: 100px;
   border-radius: 15px;
+  cursor: pointer;
+}
+
+.detailButton.like.active {
+  background-color: #aca0eb;
+  color: white;
+  cursor: pointer;
 }
 
 .writeComment {
@@ -162,10 +169,15 @@ main {
   width: 120px;
   font-size: 15px;
   color: white;
-  background-color: rgb(196, 172, 225);
+  background-color: #7e6aee;
   border: none;
   float: right;
   cursor: pointer;
+}
+
+.write-button:disabled {
+  background-color: #aca0eb;
+  cursor: default;
 }
 
 #commentListContainer {

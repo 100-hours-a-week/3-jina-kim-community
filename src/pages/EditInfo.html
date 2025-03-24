@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" type="text/css" href="../../fonts/Fonts.css" />
-    <link rel="stylesheet" href="../components/common/modal/modal.css" />
+    <link rel="stylesheet" href="../components/common/modal/Modal.css" />
     <link rel="stylesheet" href="../components/common/header/Header.css" />
     <link rel="stylesheet" href="EditInfo.css" />
     <title>회원정보수정</title>
@@ -35,31 +35,29 @@
                 placeholder="닉네임을 입력하세요"
               />
             </div>
-            <div class="helper-text">* helper text</div>
+            <div class="helper-text"></div>
             <button type="submit" class="login-button">수정하기</button>
             <button type="button" class="quit-button">회원탈퇴</button>
           </form>
         </div>
       </div>
     </main>
-    <script src="../components/common/modal/modal.js"></script>
+    <script src="../components/common/modal/Modal.js"></script>
     <script>
       document.addEventListener("DOMContentLoaded", function () {
         const nicknameInput = document.getElementById("nickname");
         const profileImgDiv = document.querySelector(".profileImg");
         const emailText = document.querySelector(".form-group p");
 
-        // ✅ 현재 로그인한 사용자 정보 가져오기
         let users = JSON.parse(localStorage.getItem("users")) || [];
-        let currentUser = JSON.parse(localStorage.getItem("currentUser")); // 로그인된 사용자 정보
+        let currentUser = JSON.parse(localStorage.getItem("currentUser"));
 
         if (!currentUser) {
           alert("로그인이 필요합니다.");
-          window.location.href = "../../index.html"; // 로그인 페이지로 이동
+          window.location.href = "../../index.html";
           return;
         }
 
-        // ✅ 현재 사용자 정보 찾기
         let userIndex = users.findIndex(
           (user) => user.email === currentUser.email
         );
@@ -71,7 +69,6 @@
 
         let userData = users[userIndex];
 
-        // ✅ 기존 정보 불러오기
         emailText.textContent = userData.email;
         nicknameInput.value = userData.nickname;
         if (userData.profileImg) {
@@ -108,8 +105,25 @@
             event.preventDefault();
 
             const newNickname = nicknameInput.value.trim();
+            const helperText = document.querySelector(".helper-text");
+            let users = JSON.parse(localStorage.getItem("users")) || [];
+            let currentUser = JSON.parse(localStorage.getItem("currentUser"));
+
             if (!newNickname) {
-              alert("닉네임을 입력해주세요!");
+              helperText.textContent = "*닉네임을 입력해주세요.";
+              return;
+            } else if (
+              users.some(
+                (user) =>
+                  user.nickname === newNickname &&
+                  user.email !== currentUser.email // ✅ 자기 자신 제외
+              )
+            ) {
+              helperText.textContent = "*중복된 닉네임입니다.";
+              return;
+            } else if (newNickname.length > 10) {
+              helperText.textContent =
+                "*닉네임은 최대 10자까지 작성 가능합니다.";
               return;
             }
 
@@ -119,8 +133,11 @@
             localStorage.setItem("users", JSON.stringify(users));
             localStorage.setItem("currentUser", JSON.stringify(userData)); // 현재 로그인된 사용자 정보 업데이트
 
-            alert("회원정보가 수정되었습니다!");
-            window.location.href = "../pages/PostList.html";
+            showToast("수정완료");
+
+            setTimeout(() => {
+              window.location.href = "../pages/PostList.html";
+            }, 1000);
           });
 
         // ✅ 회원 탈퇴 버튼 클릭 이벤트
@@ -128,8 +145,8 @@
           .querySelector(".quit-button")
           .addEventListener("click", function () {
             openModal(
-              "정말 회원 탈퇴하시겠습니까?",
-              "탈퇴 후 계정을 복구할 수 없습니다.",
+              "회원탈퇴 하시겠습니까?",
+              "작성된 게시글과 댓글은 삭제됩니다.",
               function () {
                 deleteUserAccount(); // 회원 탈퇴 함수 실행
               }
@@ -158,6 +175,13 @@
           window.location.href = "../../index.html"; // 메인 페이지로 이동
         }
       });
+
+      function showToast(message) {
+        const toast = document.getElementById("toast");
+        toast.textContent = message;
+        toast.classList.add("show");
+      }
     </script>
+    <div id="toast" class="toast">임시 메시지</div>
   </body>
 </html>

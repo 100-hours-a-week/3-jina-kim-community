@@ -83,7 +83,7 @@ main {
 }
 
 .login-button {
-  background-color: #b58ecf;
+  background-color: #7e6aee;
   color: #fff;
   width: 100%;
   padding: 0.75rem;
@@ -94,6 +94,11 @@ main {
   cursor: pointer;
   margin-top: 10px;
   margin-bottom: 0.3125rem; /* 버튼 사이 간격 */
+}
+
+.login-button:disabled {
+  background-color: #aca0eb; /* 흐린 보라색 */
+  cursor: default;
 }
 
 .signup-button {

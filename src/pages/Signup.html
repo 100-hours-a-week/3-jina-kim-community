@@ -11,7 +11,6 @@
   <body>
     <head>
       <script src="../components/common/header/Header.js" defer></script>
-      <!-- ✅ Header.js는 따로 불러오기 -->
     </head>
     <main>
       <div class="signup">
@@ -20,7 +19,7 @@
           <form onsubmit="return handleSignup(event)">
             <div class="form-group">
               <label for="profileImg">프로필 사진</label>
-              <div class="helper-text">* helper text</div>
+              <div class="helper-text">*프로필 사진을 추가해주세요.</div>
               <div class="profileImg">+</div>
             </div>
 
@@ -32,7 +31,7 @@
                 placeholder="이메일을 입력하세요"
               />
             </div>
-            <div class="helper-text">* helper text</div>
+            <div class="helper-text"></div>
             <div class="form-group">
               <label for="password">비밀번호*</label>
               <input
@@ -41,7 +40,7 @@
                 placeholder="비밀번호를 입력하세요"
               />
             </div>
-            <div class="helper-text">* helper text</div>
+            <div class="helper-text"></div>
             <div class="form-group">
               <label for="passwordConfirm">비밀번호 확인*</label>
               <input
@@ -50,7 +49,7 @@
                 placeholder="비밀번호를 한번 더 입력하세요"
               />
             </div>
-            <div class="helper-text">* helper text</div>
+            <div class="helper-text"></div>
             <div class="form-group">
               <label for="nickname">닉네임*</label>
               <input
@@ -59,8 +58,10 @@
                 placeholder="닉네임을 입력하세요"
               />
             </div>
-            <div class="helper-text">* helper text</div>
-            <button type="submit" class="login-button">회원가입</button>
+            <div class="helper-text"></div>
+            <button type="submit" class="login-button" disabled>
+              회원가입
+            </button>
             <button
               type="button"
               class="signup-button"
@@ -73,58 +74,10 @@
       </div>
     </main>
     <script>
-      function handleSignup(event) {
-        event.preventDefault(); // 폼 제출 시 새로고침 방지
-
-        // 1) 각 input의 값 가져오기
-        const email = document.getElementById("email").value.trim();
-        const password = document.getElementById("password").value.trim();
-        const passwordConfirm = document
-          .getElementById("passwordConfirm")
-          .value.trim();
-        const nickname = document.getElementById("nickname").value.trim();
-        const profileImgDiv = document.querySelector(".profileImg");
-        const profileImg = profileImgDiv.dataset.img || ""; // 선택된 이미지가 있으면 저장
-
-        // 2) 유효성 검사 (간단 예시)
-        if (!email || !password || !passwordConfirm || !nickname) {
-          alert("모든 필드를 입력해주세요.");
-          return false;
-        }
-        if (password !== passwordConfirm) {
-          alert("비밀번호가 일치하지 않습니다.");
-          return false;
-        }
-
-        // 3) 기존 저장된 users 배열 가져오기 (없으면 빈 배열)
-        let users = JSON.parse(localStorage.getItem("users")) || [];
-
-        // 4) 이미 가입된 이메일인지 확인
-        const isExist = users.some((user) => user.email === email);
-        if (isExist) {
-          alert("이미 가입된 이메일입니다.");
-          return false;
-        }
-
-        // 5) 새 유저 정보 생성 후 users 배열에 추가
-        const newUser = {
-          email: email,
-          password: password,
-          nickname: nickname,
-          profileImg: profileImg,
-        };
-        users.push(newUser);
-
-        // 6) 로컬 스토리지에 다시 저장
-        localStorage.setItem("users", JSON.stringify(users));
-
-        // 7) 가입 성공 메시지 및 로그인 페이지로 이동
-        alert("회원가입이 완료되었습니다!");
-        window.location.href = "../../index.html";
-      }
-      // ✅ 프로필 이미지 추가 기능
       document.addEventListener("DOMContentLoaded", function () {
         const profileImgDiv = document.querySelector(".profileImg");
+        const helperTexts = document.querySelectorAll(".helper-text");
+        const signupBtn = document.querySelector(".login-button");
 
         profileImgDiv.addEventListener("click", function () {
           const fileInput = document.createElement("input");
@@ -137,16 +90,123 @@
               const reader = new FileReader();
               reader.onload = function (e) {
                 profileImgDiv.style.backgroundImage = `url(${e.target.result})`;
-                profileImgDiv.textContent = ""; // "+" 제거
-                profileImgDiv.dataset.img = e.target.result; // 데이터 속성에 이미지 저장
+                profileImgDiv.textContent = "";
+                profileImgDiv.dataset.img = e.target.result; //데이터 속성에 이미지 저장
+                helperTexts[0].textContent = "";
               };
               reader.readAsDataURL(file);
             }
           });
 
-          fileInput.click();
+          fileInput.click(); //파일을 가짜로 클릭
+        });
+
+        const inputs = [
+          document.querySelector(".profileImg"),
+          document.getElementById("email"),
+          document.getElementById("password"),
+          document.getElementById("passwordConfirm"),
+          document.getElementById("nickname"),
+        ];
+
+        let users = JSON.parse(localStorage.getItem("users")) || [];
+        const validStates = [true, false, false, false, false];
+
+        function checkAllValid() {
+          const allValid = validStates.every((state) => state === true);
+          signupBtn.disabled = !allValid;
+        }
+
+        inputs.forEach((input, index) => {
+          input.addEventListener("blur", function () {
+            const value = input.value.trim();
+            let message = "";
+            let isValid = false;
+
+            if (index === 1) {
+              const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+              if (!value) {
+                message = "*이메일을 입력해주세요.";
+              } else if (!emailRegex.test(value)) {
+                message =
+                  "*올바른 이메일 주소 형식을 입력해주세요. (예:example@example.com)";
+              } else if (users.some((user) => user.email === value)) {
+                message = "*중복된 이메일입니다.";
+              } else {
+                isValid = true;
+              }
+            } else if (index === 2) {
+              if (!value) {
+                message = "*비밀번호를 입력해주세요.";
+              } else if (
+                value.length < 8 ||
+                value.length > 20 ||
+                !/[A-Z]/.test(value) || // 대문자
+                !/[a-z]/.test(value) || // 소문자
+                !/[0-9]/.test(value) || // 숫자
+                !/[^A-Za-z0-9]/.test(value) // 특수문자
+              ) {
+                message =
+                  "*비밀번호는 8자 이상, 20자 이하이며, 대문자, 소문자, 숫자, 특수문자를 각각 최소 1개 포함해야 합니다.";
+              } else {
+                isValid = true;
+              }
+            } else if (index === 3) {
+              if (!value) {
+                message = "*비밀번호를 한번 더 입력해주세요.";
+              } else if (value !== inputs[2].value.trim()) {
+                message = "*비밀번호가 다릅니다.";
+              } else {
+                isValid = true;
+              }
+            } else if (index === 4) {
+              if (!value) {
+                message = "*닉네임을 입력해주세요.";
+              } else if (value.includes(" ")) {
+                message = "*띄어쓰기를 없애주세요.";
+              } else if (users.some((user) => user.nickname === value)) {
+                message = "*중복된 닉네임입니다.";
+              } else if (value.length > 10) {
+                message = "*닉네임은 최대 10자까지 작성 가능합니다.";
+              } else {
+                isValid = true;
+              }
+            }
+
+            validStates[index] = isValid;
+            helperTexts[index].textContent = message;
+            checkAllValid();
+          });
         });
       });
+
+      function handleSignup(event) {
+        event.preventDefault();
+
+        const email = document.getElementById("email").value.trim();
+        const password = document.getElementById("password").value.trim();
+        const passwordConfirm = document
+          .getElementById("passwordConfirm")
+          .value.trim();
+        const nickname = document.getElementById("nickname").value.trim();
+        const profileImgDiv = document.querySelector(".profileImg");
+        const profileImg = profileImgDiv.dataset.img || ""; // 선택된 이미지가 있으면 저장
+
+        let users = JSON.parse(localStorage.getItem("users")) || [];
+
+        const newUser = {
+          email: email,
+          password: password,
+          nickname: nickname,
+          profileImg: profileImg,
+        };
+        users.push(newUser);
+
+        localStorage.setItem("users", JSON.stringify(users));
+
+        alert("회원가입이 완료되었습니다!");
+        window.location.href = "../../index.html";
+      }
     </script>
   </body>
 </html>

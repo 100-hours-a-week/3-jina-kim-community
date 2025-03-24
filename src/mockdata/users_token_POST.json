@@ -1,0 +1,10 @@
+{
+  "isSuccess": true,
+  "message": "login_success",
+  "data": {
+    "user_id": 1,
+    "nickname": "startup",
+    "profileImg": "https://image.kr/img.jpg",
+    "token": "jwt_token_here"
+  }
+}

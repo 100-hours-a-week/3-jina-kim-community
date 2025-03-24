@@ -97,7 +97,7 @@ main {
 }
 
 .finishButton {
-  background-color: #aca0eb;
+  background-color: #7f6aee;
   color: #fff;
   width: 70%;
   padding: 8px;
@@ -109,4 +109,8 @@ main {
   display: block;
   margin: 0 auto;
   margin-top: 30px;
+}
+
+.finishButton:disabled {
+  background-color: #aca0eb;
 }

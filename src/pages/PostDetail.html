@@ -5,15 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="../../fonts/Fonts.css" />
     <link rel="stylesheet" href="../components/common/header/Header.css" />
-    <link rel="stylesheet" href="../components/common/modal/modal.css" />
-    <link rel="stylesheet" href="../components/postDetail/commentList.css" />
+    <link rel="stylesheet" href="../components/common/modal/Modal.css" />
+    <link rel="stylesheet" href="../components/postDetail/CommentList.css" />
     <link rel="stylesheet" href="PostDetail.css" />
     <title>게시물 상세 페이지</title>
   </head>
   <body>
     <head>
       <script src="../components/common/header/Header.js" defer></script>
-      <!-- ✅ Header.js는 따로 불러오기 -->
     </head>
     <main>
       <div class="postDetailContainer">
@@ -36,9 +35,15 @@
           <img class="contentImg" id="postImg" alt="게시글 이미지" />
           <p class="contentMent" id="postContent">내용</p>
           <div class="contentDetail">
-            <section class="detailButton">123<br />좋아요수</section>
-            <section class="detailButton">123<br />조회수</section>
-            <section class="detailButton">123<br />댓글</section>
+            <section class="detailButton like" id="likeButton">
+              0<br />좋아요수
+            </section>
+            <section class="detailButton view" id="viewCount">
+              0<br />조회수
+            </section>
+            <section class="detailButton comment" id="commentCount">
+              0<br />댓글
+            </section>
           </div>
         </div>
         <hr class="line2" />
@@ -50,13 +55,15 @@
               placeholder="댓글을 남겨주세요!"
             ></textarea>
             <hr class="line2" />
-            <button class="write-button" id="submitComment">댓글 등록</button>
+            <button class="write-button" id="submitComment" disabled>
+              댓글 등록
+            </button>
           </div>
         </div>
         <div id="commentListContainer"></div>
       </div>
     </main>
-    <script src="../components/common/modal/modal.js"></script>
+    <script src="../components/common/modal/Modal.js"></script>
     <script>
       document.addEventListener("DOMContentLoaded", function () {
         const urlParams = new URLSearchParams(window.location.search);
@@ -84,6 +91,8 @@
         document.getElementById("postDate").textContent = `작성일: ${new Date(
           post.id
         ).toLocaleString()}`;
+
+        increaseViewCount(postId);
 
         // ✅ 작성자 정보 (익명 → 실제 닉네임)
         document.getElementById("postWriter").textContent =
@@ -132,6 +141,13 @@
           );
         }
 
+        function formatCount(num) {
+          if (num >= 100000) return "100k";
+          if (num >= 10000) return "10k";
+          if (num >= 1000) return "1k";
+          return num;
+        }
+
         // ✅ 게시글 삭제 함수 (모달에서 "확인" 누르면 실행)
         function deletePostConfirmed(postId) {
           posts = posts.filter((p) => p.id != postId);
@@ -141,6 +157,68 @@
           window.location.href = "PostList.html"; // 리스트 페이지로 이동
         }
 
+        // ✅ 좋아요 기능
+        const likeButton = document.getElementById("likeButton");
+        const userEmail = currentUser?.email;
+
+        // 좋아요한 유저 리스트 불러오기
+        let likedUsers =
+          JSON.parse(localStorage.getItem(`likes_${postId}`)) || [];
+
+        // UI 업데이트 함수
+        function updateLikeUI() {
+          const isLiked = likedUsers.includes(userEmail);
+          likeButton.classList.toggle("active", isLiked);
+          likeButton.innerHTML = `${formatCount(
+            likedUsers.length
+          )}<br />좋아요수`;
+        }
+
+        // 최초 1회 UI 반영
+        updateLikeUI();
+
+        // 클릭 시 토글
+        likeButton.addEventListener("click", () => {
+          if (!userEmail) {
+            alert("로그인이 필요합니다.");
+            return;
+          }
+
+          const isLiked = likedUsers.includes(userEmail);
+          if (isLiked) {
+            likedUsers = likedUsers.filter((email) => email !== userEmail);
+          } else {
+            likedUsers.push(userEmail);
+          }
+
+          // 저장 & UI 업데이트
+          localStorage.setItem(`likes_${postId}`, JSON.stringify(likedUsers));
+          updateLikeUI();
+        });
+
+        // ✅ 조회수 증가 처리
+        function increaseViewCount(postId) {
+          let viewCount =
+            parseInt(localStorage.getItem(`views_${postId}`)) || 0;
+          viewCount += 1;
+          localStorage.setItem(`views_${postId}`, viewCount);
+
+          // 화면에 표시
+          const viewElement = document.getElementById("viewCount");
+          viewElement.innerHTML = `${formatCount(viewCount)}<br />조회수`;
+        }
+
+        const commentInput = document.getElementById("commentInput");
+        const submitButton = document.getElementById("submitComment");
+        let commentEditMode = false;
+        let editingCommentId = null;
+
+        // ✅ 입력할 때마다 버튼 활성화/비활성화
+        commentInput.addEventListener("input", function () {
+          const text = commentInput.value.trim();
+          submitButton.disabled = text === "";
+        });
+
         // ✅ 댓글 등록 기능
         document
           .getElementById("submitComment")
@@ -148,29 +226,37 @@
             const commentInput = document.getElementById("commentInput");
             const commentText = commentInput.value.trim();
 
-            if (!commentText) {
-              alert("댓글을 입력해주세요!");
-              return;
+            let comments =
+              JSON.parse(localStorage.getItem(`comments_${postId}`)) || [];
+
+            if (commentEditMode && editingCommentId !== null) {
+              // ✅ 수정 모드일 경우 기존 댓글 내용 업데이트
+              comments = comments.map((c) =>
+                c.id === editingCommentId ? { ...c, content: commentText } : c
+              );
+              commentEditMode = false;
+              editingCommentId = null;
+              submitButton.textContent = "댓글 등록";
+            } else {
+              // ✅ 일반 댓글 등록
+              const newComment = {
+                id: new Date().getTime(),
+                writer: currentUser ? currentUser.nickname : "익명",
+                profileImg: currentUser ? currentUser.profileImg : "",
+                date: new Date().toLocaleString(),
+                content: commentText,
+              };
+              comments.push(newComment);
             }
 
-            const comments =
-              JSON.parse(localStorage.getItem(`comments_${postId}`)) || [];
-            const newComment = {
-              id: new Date().getTime(),
-              writer: currentUser ? currentUser.nickname : "익명",
-              profileImg: currentUser ? currentUser.profileImg : "",
-              date: new Date().toLocaleString(),
-              content: commentText,
-            };
-
-            comments.push(newComment);
             localStorage.setItem(
               `comments_${postId}`,
               JSON.stringify(comments)
             );
 
-            commentInput.value = ""; // 입력창 초기화
-            loadComments(); // 댓글 다시 불러오기
+            commentInput.value = "";
+            submitButton.disabled = true;
+            loadComments();
           });
 
         // ✅ 댓글 불러오기 함수 (fetch 사용)
@@ -178,17 +264,22 @@
           const commentListContainer = document.getElementById(
             "commentListContainer"
           );
+          const commentCountElement = document.getElementById("commentCount");
           commentListContainer.innerHTML = "";
 
           const comments =
             JSON.parse(localStorage.getItem(`comments_${postId}`)) || [];
+
+          commentCountElement.innerHTML = `${formatCount(
+            comments.length
+          )}<br />댓글`;
 
           if (comments.length === 0) {
             commentListContainer.innerHTML = "<p>댓글이 없습니다.</p>";
             return;
           }
 
-          fetch("../components/postDetail/commentList.html")
+          fetch("../components/postDetail/CommentList.html")
             .then((response) => response.text())
             .then((html) => {
               comments.forEach((comment) => {
@@ -221,20 +312,13 @@
                 commentElement
                   .querySelector(".editButton:nth-child(1)")
                   .addEventListener("click", function () {
-                    const newContent = prompt(
-                      "새로운 댓글 내용을 입력하세요:",
-                      comment.content
-                    );
-                    if (newContent) {
-                      comments.forEach((c) => {
-                        if (c.id === comment.id) c.content = newContent;
-                      });
-                      localStorage.setItem(
-                        `comments_${postId}`,
-                        JSON.stringify(comments)
-                      );
-                      loadComments();
-                    }
+                    commentInput.value = comment.content;
+                    submitButton.disabled = false;
+
+                    // 수정 모드로 전환
+                    commentEditMode = true;
+                    editingCommentId = comment.id;
+                    submitButton.textContent = "댓글 수정";
                   });
 
                 const deleteButton = commentElement.querySelector(

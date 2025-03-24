@@ -29,44 +29,68 @@
       </div>
     </main>
     <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        const postListContainer = document.getElementById("postListContainer");
+      function formatCount(num) {
+        if (num >= 100000) return "100k";
+        if (num >= 10000) return "10k";
+        if (num >= 1000) return "1k";
+        return num;
+      }
 
-        // 저장된 게시글 가져오기
-        const posts = JSON.parse(localStorage.getItem("posts")) || [];
+      // 도우미 함수
+      function pad(n) {
+        return n.toString().padStart(2, "0");
+      }
 
-        // 게시글이 없으면 메시지 출력
-        if (posts.length === 0) {
-          postListContainer.innerHTML = "<p>게시글이 없습니다.</p>";
-          return;
-        }
+      let allPosts = [];
+      let currentPage = 0;
+      const POSTS_PER_LOAD = 10;
+      let postListContainer;
 
-        // List.html 템플릿 가져오기
+      function renderPosts(startIndex, endIndex) {
+        const postsToRender = allPosts.slice(startIndex, endIndex);
+
         fetch("../components/postList/List.html")
           .then((response) => response.text())
           .then((html) => {
-            posts.forEach((post) => {
+            postsToRender.forEach((post) => {
               const tempElement = document.createElement("div");
               tempElement.innerHTML = html;
-
-              // listContainer 요소 찾기
               const listItem = tempElement.querySelector(".listContainer");
 
-              // 제목, 날짜 변경
+              const postId = post.id;
+              const date = new Date(postId);
+              const formattedDate = `${date.getFullYear()}-${pad(
+                date.getMonth() + 1
+              )}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(
+                date.getMinutes()
+              )}:${pad(date.getSeconds())}`;
+
+              const likes =
+                JSON.parse(localStorage.getItem(`likes_${postId}`)) || [];
+              const comments =
+                JSON.parse(localStorage.getItem(`comments_${postId}`)) || [];
+              const views =
+                parseInt(localStorage.getItem(`views_${postId}`)) || 0;
+
               listItem.querySelector("h2").textContent = post.title;
+              listItem.querySelector(
+                ".content span:first-child"
+              ).textContent = `좋아요 ${formatCount(
+                likes.length
+              )} 댓글 ${formatCount(comments.length)} 조회수 ${formatCount(
+                views
+              )}`;
               listItem.querySelector(".content span:last-child").textContent =
-                new Date(post.id).toLocaleString();
+                formattedDate;
               listItem.querySelector(".writer").textContent = post.writer;
 
-              // ✅ 프로필 이미지 설정
               const profileImgElement = listItem.querySelector(".profileImg");
               if (post.profileImg) {
                 profileImgElement.style.backgroundImage = `url(${post.profileImg})`;
               } else {
-                profileImgElement.style.backgroundImage = "none"; // 기본 이미지
+                profileImgElement.style.backgroundImage = "none";
               }
 
-              // 클릭하면 상세 페이지로 이동
               listItem.addEventListener("click", function () {
                 window.location.href = `PostDetail.html?id=${post.id}`;
               });
@@ -75,6 +99,37 @@
             });
           })
           .catch((error) => console.error("리스트 불러오기 에러:", error));
+      }
+
+      window.addEventListener("scroll", function () {
+        if (
+          window.innerHeight + window.scrollY >=
+          document.body.offsetHeight - 100
+        ) {
+          loadMorePosts();
+        }
+      });
+
+      function loadMorePosts() {
+        const start = currentPage * POSTS_PER_LOAD;
+        const end = start + POSTS_PER_LOAD;
+
+        if (start >= allPosts.length) return; // 더 이상 로딩할 게 없으면 종료
+
+        renderPosts(start, end);
+        currentPage++;
+      }
+
+      document.addEventListener("DOMContentLoaded", function () {
+        postListContainer = document.getElementById("postListContainer");
+        allPosts = JSON.parse(localStorage.getItem("posts")) || [];
+
+        if (allPosts.length === 0) {
+          postListContainer.innerHTML = "<p>게시글이 없습니다.</p>";
+          return;
+        }
+
+        loadMorePosts();
       });
     </script>
   </body>

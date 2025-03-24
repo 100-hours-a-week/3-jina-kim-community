@@ -8,7 +8,7 @@ window.closeModal = function () {
 
 // ✅ modal.html을 동적으로 불러와 body에 추가
 document.addEventListener("DOMContentLoaded", () => {
-  fetch("../components/common/modal/modal.html")
+  fetch("../components/common/modal/Modal.html")
     .then((response) => {
       if (!response.ok) {
         throw new Error("모달 HTML을 불러오는 데 실패했습니다.");

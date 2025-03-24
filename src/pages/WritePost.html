@@ -43,7 +43,12 @@
                 <p class="ment">파일을 선택해주세요.</p>
               </div>
             </div>
-            <button type="submit" id="submitButton" class="finishButton">
+            <button
+              type="submit"
+              id="submitButton"
+              class="finishButton"
+              disabled
+            >
               완료
             </button>
           </form>
@@ -52,6 +57,28 @@
     </main>
     <script>
       document.addEventListener("DOMContentLoaded", function () {
+        const titleInput = document.getElementById("title");
+        const contentInput = document.getElementById("content");
+        const submitButton = document.getElementById("submitButton");
+
+        titleInput.addEventListener("input", function () {
+          if (titleInput.value.length > 26) {
+            titleInput.value = titleInput.value.slice(0, 26);
+          }
+          checkFormValidity();
+        });
+
+        contentInput.addEventListener("input", checkFormValidity);
+
+        function checkFormValidity() {
+          const isTitleFilled = titleInput.value.trim().length > 0;
+          const isContentFilled = contentInput.value.trim().length > 0;
+          submitButton.disabled = !(isTitleFilled && isContentFilled);
+        }
+
+        // 수정 모드에서 기존 값 채워졌을 때 버튼 활성화
+        checkFormValidity();
+
         const urlParams = new URLSearchParams(window.location.search);
         const editId = urlParams.get("editId");
 
@@ -59,6 +86,7 @@
         fileInput.type = "file";
         fileInput.accept = "image/*"; // 이미지 파일만 허용
         let imageBase64 = ""; // 이미지 Base64 데이터 저장 변수
+        let imageName = "";
 
         const currentUser = JSON.parse(localStorage.getItem("currentUser"));
 
@@ -83,7 +111,8 @@
             const reader = new FileReader();
             reader.onload = function (event) {
               imageBase64 = event.target.result; // Base64 데이터 저장
-              document.querySelector(".ment").textContent = file.name; // 선택된 파일명 표시
+              imageName = file.name;
+              document.querySelector(".ment").textContent = imageName; // 선택된 파일명 표시
             };
             reader.readAsDataURL(file);
           }
@@ -103,8 +132,7 @@
 
             // ✅ 기존 이미지가 있으면 파일명 표시
             if (post.image) {
-              document.querySelector(".ment").textContent =
-                "이미지 파일이 선택됨";
+              document.querySelector(".ment").textContent = post.imageName;
             }
           }
         }
@@ -130,7 +158,7 @@
               // ✅ 기존 게시글 수정
               posts = posts.map((p) =>
                 p.id == editId
-                  ? { ...p, title, content, image: imageBase64 }
+                  ? { ...p, title, content, image: imageBase64, imageName }
                   : p
               );
               alert("게시글이 수정되었습니다.");
@@ -143,6 +171,7 @@
                 title,
                 content,
                 image: imageBase64, // Base64 이미지 추가
+                imageName,
                 writer: currentUser.nickname, // ✅ 유저 닉네임 추가
                 profileImg: currentUser.profileImg || "", // ✅ 유저 프로필 이미지 추가 (없으면 빈 값)
               };
