@@ -17,7 +17,7 @@
       <div class="writePage">
         <p class="writeHeader">게시글 작성</p>
         <div class="write-container">
-          <form onsubmit="return handlePostSubmit(event)">
+          <form>
             <input type="hidden" id="editId" />
             <div class="form-group">
               <label for="title">제목*</label>
@@ -55,132 +55,6 @@
         </div>
       </div>
     </main>
-    <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        const titleInput = document.getElementById("title");
-        const contentInput = document.getElementById("content");
-        const submitButton = document.getElementById("submitButton");
-
-        titleInput.addEventListener("input", function () {
-          if (titleInput.value.length > 26) {
-            titleInput.value = titleInput.value.slice(0, 26);
-          }
-          checkFormValidity();
-        });
-
-        contentInput.addEventListener("input", checkFormValidity);
-
-        function checkFormValidity() {
-          const isTitleFilled = titleInput.value.trim().length > 0;
-          const isContentFilled = contentInput.value.trim().length > 0;
-          submitButton.disabled = !(isTitleFilled && isContentFilled);
-        }
-
-        // 수정 모드에서 기존 값 채워졌을 때 버튼 활성화
-        checkFormValidity();
-
-        const urlParams = new URLSearchParams(window.location.search);
-        const editId = urlParams.get("editId");
-
-        const fileInput = document.createElement("input"); // 파일 업로드 input (hidden)
-        fileInput.type = "file";
-        fileInput.accept = "image/*"; // 이미지 파일만 허용
-        let imageBase64 = ""; // 이미지 Base64 데이터 저장 변수
-        let imageName = "";
-
-        const currentUser = JSON.parse(localStorage.getItem("currentUser"));
-
-        if (!currentUser) {
-          alert("로그인이 필요합니다.");
-          window.location.href = "../../index.html"; // 로그인 페이지로 이동
-          return;
-        }
-
-        // ✅ "파일 선택" 버튼 클릭 시 파일 업로드 창 열기
-        document
-          .querySelector(".imgfile")
-          .addEventListener("click", function (e) {
-            e.preventDefault();
-            fileInput.click();
-          });
-
-        // ✅ 파일 선택 시 Base64로 변환하여 저장
-        fileInput.addEventListener("change", function () {
-          const file = fileInput.files[0];
-          if (file) {
-            const reader = new FileReader();
-            reader.onload = function (event) {
-              imageBase64 = event.target.result; // Base64 데이터 저장
-              imageName = file.name;
-              document.querySelector(".ment").textContent = imageName; // 선택된 파일명 표시
-            };
-            reader.readAsDataURL(file);
-          }
-        });
-
-        if (editId) {
-          // ✅ 수정 모드: 기존 게시글 데이터 불러오기
-          const posts = JSON.parse(localStorage.getItem("posts")) || [];
-          const post = posts.find((p) => p.id == editId);
-
-          if (post) {
-            document.getElementById("editId").value = editId;
-            document.getElementById("title").value = post.title;
-            document.getElementById("content").value = post.content;
-            imageBase64 = post.image || ""; // 기존 이미지가 있으면 유지
-            document.getElementById("submitButton").textContent = "수정하기";
-
-            // ✅ 기존 이미지가 있으면 파일명 표시
-            if (post.image) {
-              document.querySelector(".ment").textContent = post.imageName;
-            }
-          }
-        }
-
-        // ✅ 게시글 저장 또는 수정
-        document
-          .querySelector("form")
-          .addEventListener("submit", function (event) {
-            event.preventDefault();
-
-            const title = document.getElementById("title").value.trim();
-            const content = document.getElementById("content").value.trim();
-            const editId = document.getElementById("editId").value; // 수정 ID
-
-            if (!title || !content) {
-              alert("제목과 내용을 입력해주세요!");
-              return;
-            }
-
-            let posts = JSON.parse(localStorage.getItem("posts")) || [];
-
-            if (editId) {
-              // ✅ 기존 게시글 수정
-              posts = posts.map((p) =>
-                p.id == editId
-                  ? { ...p, title, content, image: imageBase64, imageName }
-                  : p
-              );
-              alert("게시글이 수정되었습니다.");
-              localStorage.setItem("posts", JSON.stringify(posts));
-              window.location.href = `PostDetail.html?id=${editId}`; // 수정 후 상세 페이지 이동
-            } else {
-              // ✅ 새 게시글 작성
-              const newPost = {
-                id: new Date().getTime(),
-                title,
-                content,
-                image: imageBase64, // Base64 이미지 추가
-                imageName,
-                writer: currentUser.nickname, // ✅ 유저 닉네임 추가
-                profileImg: currentUser.profileImg || "", // ✅ 유저 프로필 이미지 추가 (없으면 빈 값)
-              };
-              posts.push(newPost);
-              localStorage.setItem("posts", JSON.stringify(posts));
-              window.location.href = "PostList.html"; // 새 글 작성 후 리스트 이동
-            }
-          });
-      });
-    </script>
+    <script type="module" src="./WritePost.js"></script>
   </body>
 </html>

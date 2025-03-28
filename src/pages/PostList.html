@@ -12,7 +12,6 @@
   <body>
     <head>
       <script src="../components/common/header/Header.js" defer></script>
-      <!-- ✅ Header.js는 따로 불러오기 -->
     </head>
     <main>
       <div class="container">
@@ -28,109 +27,6 @@
         <div id="postListContainer"></div>
       </div>
     </main>
-    <script>
-      function formatCount(num) {
-        if (num >= 100000) return "100k";
-        if (num >= 10000) return "10k";
-        if (num >= 1000) return "1k";
-        return num;
-      }
-
-      // 도우미 함수
-      function pad(n) {
-        return n.toString().padStart(2, "0");
-      }
-
-      let allPosts = [];
-      let currentPage = 0;
-      const POSTS_PER_LOAD = 10;
-      let postListContainer;
-
-      function renderPosts(startIndex, endIndex) {
-        const postsToRender = allPosts.slice(startIndex, endIndex);
-
-        fetch("../components/postList/List.html")
-          .then((response) => response.text())
-          .then((html) => {
-            postsToRender.forEach((post) => {
-              const tempElement = document.createElement("div");
-              tempElement.innerHTML = html;
-              const listItem = tempElement.querySelector(".listContainer");
-
-              const postId = post.id;
-              const date = new Date(postId);
-              const formattedDate = `${date.getFullYear()}-${pad(
-                date.getMonth() + 1
-              )}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(
-                date.getMinutes()
-              )}:${pad(date.getSeconds())}`;
-
-              const likes =
-                JSON.parse(localStorage.getItem(`likes_${postId}`)) || [];
-              const comments =
-                JSON.parse(localStorage.getItem(`comments_${postId}`)) || [];
-              const views =
-                parseInt(localStorage.getItem(`views_${postId}`)) || 0;
-
-              listItem.querySelector("h2").textContent = post.title;
-              listItem.querySelector(
-                ".content span:first-child"
-              ).textContent = `좋아요 ${formatCount(
-                likes.length
-              )} 댓글 ${formatCount(comments.length)} 조회수 ${formatCount(
-                views
-              )}`;
-              listItem.querySelector(".content span:last-child").textContent =
-                formattedDate;
-              listItem.querySelector(".writer").textContent = post.writer;
-
-              const profileImgElement = listItem.querySelector(".profileImg");
-              if (post.profileImg) {
-                profileImgElement.style.backgroundImage = `url(${post.profileImg})`;
-              } else {
-                profileImgElement.style.backgroundImage = "none";
-              }
-
-              listItem.addEventListener("click", function () {
-                window.location.href = `PostDetail.html?id=${post.id}`;
-              });
-
-              postListContainer.appendChild(listItem);
-            });
-          })
-          .catch((error) => console.error("리스트 불러오기 에러:", error));
-      }
-
-      window.addEventListener("scroll", function () {
-        if (
-          window.innerHeight + window.scrollY >=
-          document.body.offsetHeight - 100
-        ) {
-          loadMorePosts();
-        }
-      });
-
-      function loadMorePosts() {
-        const start = currentPage * POSTS_PER_LOAD;
-        const end = start + POSTS_PER_LOAD;
-
-        if (start >= allPosts.length) return; // 더 이상 로딩할 게 없으면 종료
-
-        renderPosts(start, end);
-        currentPage++;
-      }
-
-      document.addEventListener("DOMContentLoaded", function () {
-        postListContainer = document.getElementById("postListContainer");
-        allPosts = JSON.parse(localStorage.getItem("posts")) || [];
-
-        if (allPosts.length === 0) {
-          postListContainer.innerHTML = "<p>게시글이 없습니다.</p>";
-          return;
-        }
-
-        loadMorePosts();
-      });
-    </script>
+    <script type="module" src="./PostList.js"></script>
   </body>
 </html>

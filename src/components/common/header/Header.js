@@ -26,9 +26,9 @@ document.addEventListener("DOMContentLoaded", function () {
         currentPage.includes("WritePost.html")
       ) {
         // ✅ 현재 로그인한 사용자 정보 가져오기
-        let currentUser = JSON.parse(localStorage.getItem("currentUser"));
+        let profileImg = localStorage.getItem("profile_img_url");
 
-        if (currentUser && currentUser.profileImg) {
+        if (profileImg) {
           // ✅ 프로필 사진을 버튼으로 사용
           mypageButtonContainer.innerHTML = `
             <div id="profile-button" class="profile-pic"></div>
@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", function () {
           `;
           document.getElementById(
             "profile-button"
-          ).style.backgroundImage = `url(${currentUser.profileImg})`;
+          ).style.backgroundImage = `url(${profileImg})`;
         } else {
           // 기본 프로필 이미지 (로그인한 사용자에게 프로필 이미지가 없을 경우)
           mypageButtonContainer.innerHTML = `
@@ -79,7 +79,8 @@ document.addEventListener("DOMContentLoaded", function () {
         document
           .getElementById("logout")
           .addEventListener("click", function () {
-            localStorage.removeItem("currentUser");
+            localStorage.removeItem("user_id");
+            localStorage.removeItem("profile_img_url");
             alert("로그아웃되었습니다.");
             window.location.href = "../../index.html";
           });
